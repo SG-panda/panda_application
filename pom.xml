@@ -6,7 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.2.4.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/> <!-- lookup parent from repository -->	  
 	</parent>
 	<groupId>pl.pandait</groupId>
 	<artifactId>panda</artifactId>
@@ -50,4 +50,17 @@
 		</plugins>
 	</build>
 
+	<distributionManagement>
+		<repository>
+		  <id>artifactory</id>
+		  <name>release</name>
+		  <url>http://192.168.44.44:8081/artifactory/libs-release-local</url>
+		</repository>
+		<snapshotRepository>
+		  <id>artifactory</id>
+		  <name>snapshots</name>
+		  <url>http://192.168.44.44:8081/artifactory/libs-snapshot-local</url>
+		</snapshotRepository>
+	  </distributionManagement>
+	
 </project>
