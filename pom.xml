@@ -1,18 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.2.4.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->	  
-	</parent>
-	<groupId>pl.pandait</groupId>
-	<artifactId>panda</artifactId>
-	<version>0.0.1</version>
-	<name>panda</name>
-	<description>Demo project for Spring Boot</description>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.2.4.RELEASE</version>
+    <relativePath/>
+    <!-- lookup parent from repository -->
+  </parent>
+  <groupId>pl.pandait</groupId>
+  <artifactId>panda</artifactId>
+  <version>0.0.1</version>
+  <name>panda</name>
+  <description>Demo project for Spring Boot</description>
+  <distributionManagement>
+    <repository>
+      <id>artifactory</id>
+      <name>release</name>
+      <url>http://192.168.44.44:8081/artifactory/libs-release-local</url>
+    </repository>
+    <snapshotRepository>
+      <id>artifactory</id>
+      <name>snapshots</name>
+      <url>http://192.168.44.44:8081/artifactory/libs-snapshot-local</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <dependencies>
     <dependency>
@@ -86,17 +99,113 @@
     </plugins>
   </build>
 
-	<distributionManagement>
-		<repository>
-		  <id>artifactory</id>
-		  <name>release</name>
-		  <url>http://192.168.44.44:8081/artifactory/libs-release-local</url>
-		</repository>
-		<snapshotRepository>
-		  <id>artifactory</id>
-		  <name>snapshots</name>
-		  <url>http://192.168.44.44:8081/artifactory/libs-snapshot-local</url>
-		</snapshotRepository>
-	  </distributionManagement>
-	
+  <profiles>
+    <profile>
+      <id>selenium</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.22.2</version>
+            <executions>
+              <execution>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <includes>
+                <include>*SeleniumTest.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>docker</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.spotify</groupId>
+            <artifactId>dockerfile-maven-plugin</artifactId>
+            <version>1.4.13</version>
+            <executions>
+              <execution>
+                <id>default</id>
+                <goals>
+                  <goal>build</goal>
+                  <goal>push</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <repository>${project.artifactId}</repository>
+              <tag>${project.version}</tag>
+              <buildArgs>
+                <JAR_FILE>target/${project.artifactId}-${project.version}.jar</JAR_FILE>
+              </buildArgs>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>dev</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.22.2</version>
+            <executions>
+              <execution>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <excludes>
+                <exclude>*SeleniumTest.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>shell</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.0.0</version>
+            <executions>
+              <execution>
+                <phase>compile</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <executable>echo</executable>
+              <arguments>
+                <argument>${env.PATH}</argument>
+              </arguments>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
