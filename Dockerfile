@@ -1,5 +1,4 @@
-FROM ubuntu:18.04
-WORKDIR /home
-COPY agent.jar .
-RUN apt-get update -y && apt-get install openjdk-11-jdk git maven curl docker.io -y
-RUN adduser --disabled-password --gecos "" jenkins
+FROM openjdk:11.0
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
