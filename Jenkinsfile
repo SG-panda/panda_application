@@ -6,8 +6,10 @@ pipeline {
     tools {
         // Install the Maven version configured as "M3" and add it to the path.
         maven "auto_maven"
+        terraform 'Terraform'
     }
     environment{
+        ANSIBLE = tool name: 'Ansible', type: 'com.cloudbees.jenkins.plugins.customtools.CustomTool'
         IMAGE = readMavenPom().getArtifactId()
         VERSION = readMavenPom().getVersion()
     }
@@ -51,14 +53,6 @@ pipeline {
                 sh 'mvn -s $MAVEN_SETTINGS deploy -Dmaven.test.skip=true'
                 }
             }
-            post {
-                always {
-                    sh "docker stop pandaapp"
-                    junit '**/target/surefire-reports/TEST-*.xml'
-                    archiveArtifacts 'target/*.jar'
-                    deleteDir()
-                }
-            }
         }
         stage('Run terraform') {
             steps {
@@ -78,6 +72,14 @@ pipeline {
                 sh 'chmod 600 ../moje_nowe_klucze.pem'
                 sh 'ansible-playbook -i ./inventory playbook.yml'
                 } 
+            }
+            post{
+                always {
+                    sh "docker stop pandaapp"
+                    junit '**/target/surefire-reports/TEST-*.xml'
+                    archiveArtifacts 'target/*.jar'
+                    deleteDir()
+                }
             }
         }
     }
