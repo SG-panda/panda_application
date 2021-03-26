@@ -48,17 +48,16 @@ pipeline {
         stage('Artifactory'){
             steps{
                 configFileProvider([configFile(fileId: 'ebeb99dd-ec84-4636-9595-5a7ebeb0ee01', variable: 'MAVEN_SETTINGS')]) {
-                sh 'mvn -s $MAVEN_SETTINGS deploy -Dmaven.test.skip=true'  
+                sh 'mvn -s $MAVEN_SETTINGS deploy -Dmaven.test.skip=true'
+            }
+            post {
+                always {
+                    sh "docker stop pandaapp"
+                    junit '**/target/surefire-reports/TEST-*.xml'
+                    archiveArtifacts 'target/*.jar'
+                    deleteDir()
                 }
             }
-        }
-    }    
-    post {
-        always {
-            sh "docker stop pandaapp"
-            junit '**/target/surefire-reports/TEST-*.xml'
-            archiveArtifacts 'target/*.jar'
-            deleteDir()
         }
     }
 }
