@@ -57,7 +57,7 @@ pipeline {
         stage('Run terraform') {
             steps {
                 dir('infrastructure/terraform') { 
-                sh 'terraform init && terraform apply -auto-approve'
+                sh 'terraform init && terraform apply -auto-approve -var-file example.tfvars'
                 } 
             }
         }
